@@ -1,0 +1,72 @@
+.contact-page {
+    max-width: 600px;
+    margin: 100px auto 0 auto; /* Added top margin to avoid overlap with the navbar */
+    padding: 20px;
+    background: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  .contact-page h2 {
+    text-align: center;
+    color: #333;
+  }
+  
+  .contact-info {
+    margin-bottom: 20px;
+    text-align: center;
+    font-size: 16px;
+  }
+  
+  .contact-info p {
+    margin: 8px 0;
+  }
+  
+  .contact-info a {
+    color: #007bff;
+    text-decoration: none;
+  }
+  
+  .contact-info a:hover {
+    text-decoration: underline;
+  }
+  
+  .contact-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  .form-group {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .form-group input,
+  .form-group textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+  }
+  
+  .form-group input:focus,
+  .form-group textarea:focus {
+    border-color: #007bff;
+    outline: none;
+  }
+  
+  button[type='submit'] {
+    padding: 10px;
+    background: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s;
+  }
+  
+  button[type='submit']:hover {
+    background: #0056b3;
+  }
+  

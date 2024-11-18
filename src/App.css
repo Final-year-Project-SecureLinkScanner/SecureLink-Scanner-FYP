@@ -1,19 +1,61 @@
-/* App.css */
+/* Reset some default styles */
 body {
   font-family: Arial, sans-serif;
   background-color: #f4f4f9;
   margin: 0;
   padding: 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
 }
 
+/* Navbar styles */
+.navbar {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  height: 50px;
+  background-color: #0073e6;
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 20px;
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+}
+
+.navbar h1 {
+  font-size: 1.5rem;
+  margin: 0;
+}
+
+.nav-links {
+  list-style-type: none;
+  display: flex;
+  gap: 50px;
+  margin: 0;
+  padding: 40px;
+}
+
+.nav-links a {
+  color: white;
+  text-decoration: none;
+  font-size: 1rem;
+}
+
+.nav-links a:hover {
+  text-decoration: underline;
+}
+
+/* Title Section */
+.title-section {
+  text-align: center;
+  margin-top: 100px; /* Adjust to avoid overlap with the navbar */
+}
+
+/* Main Content */
 .homepage {
   text-align: center;
   max-width: 400px;
-  margin: auto;
+  margin: 80px auto 0; /* Add top margin to avoid overlap with the navbar */
   padding: 20px;
   border-radius: 8px;
   background-color: #fff;
