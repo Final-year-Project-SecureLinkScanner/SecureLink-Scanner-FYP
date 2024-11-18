@@ -5,7 +5,7 @@ function PreviousSearches() {
   return (
     <div className="previous-searches-page">
       <h2>Previous Searches</h2>
-      <p>This feature is under development. Check back soon!</p>
+      <p>This feature is under development for now. Check back soon!</p>
     </div>
   );
 }
