@@ -19,7 +19,25 @@ const API_KEY = "AIzaSyBmA7PMdf7uaK8nBBZbbPbu4OkoIFlx5rI";
 const PROJECT_ID = "fyp-securelink-scanner";
 const API_ENDPOINT = `https://safebrowsing.googleapis.com/v4/threatMatches:find?key=${API_KEY}`;
 
-// API endpoint
+// API endpoints
+// Endpoint to forward URL to Python API
+app.post('/api/log-url', async (req, res) => {
+    try {
+        const { url } = req.body;
+
+        if (!url) {
+            return res.status(400).json({ error: 'URL is required' });
+        }
+
+        // Forward the URL to the Python API
+        const response = await axios.post('http://127.0.0.1:5000/api/log-url', { url });
+        res.json(response.data);
+    } catch (error) {
+        console.error('Error forwarding to Python API:', error.message);
+        res.status(500).json({ error: 'Failed to forward URL to Python API' });
+    }
+});
+
 app.post('/api/check-url', async (req, res) => {
     try {
         const { url } = req.body;
@@ -34,7 +52,7 @@ app.post('/api/check-url', async (req, res) => {
                 clientVersion: "1.0.0"
             },
             threatInfo: {
-                threatTypes: ["MALWARE", "SOCIAL_ENGINEERING"],
+                threatTypes: ["MALWARE", "SOCIAL_ENGINEERING", "UNWANTED_SOFTWARE", "POTENTIALLY_HARMFUL_APPLICATION"],
                 platformTypes: ["ANY_PLATFORM"],
                 threatEntryTypes: ["URL"],
                 threatEntries: [{ url: url }]
@@ -63,7 +81,7 @@ app.post('/api/check-url', async (req, res) => {
             });
         }
     } catch (error) {
-        // More  error handling
+        // More error handling
         console.error('API Error:', {
             projectId: PROJECT_ID,
             status: error.response?.status,
