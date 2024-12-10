@@ -40,22 +40,28 @@ function App() {
 
   const handleManualTest = async () => {
     if (!url) {
-      setManualTestResult({ error: 'Please enter a URL first' });
-      return;
+        setManualTestResult({ error: 'Please enter a URL first' });
+        return;
     }
-    
+
     setLoading(true);
     try {
-      const response = await axios.post('http://localhost:3001/api/log-url', { 
-        url: url.startsWith('http') ? url : `http://${url}` 
-      });
-      setManualTestResult({ response: response.data.message });
+        const cleanedUrl = url.trim();
+        const response = await axios.post(
+            'http://localhost:3001/api/log-url',
+            { url: cleanedUrl },
+            { headers: { 'Content-Type': 'application/json' } }
+        );
+        // Make sure we're handling the response properly
+        setManualTestResult({ 
+            response: response.data.message || JSON.stringify(response.data)
+        });
     } catch (error) {
-      setManualTestResult({ 
-        error: error.response?.data?.message || 'Failed to perform manual test' 
-      });
+        setManualTestResult({
+            error: error.response?.data?.message || 'Failed to perform manual test'
+        });
     } finally {
-      setLoading(false);
+        setLoading(false);
     }
   };
 
@@ -119,7 +125,7 @@ function App() {
                   ) : (
                     <div>
                       <h2>Manual Test Results</h2>
-                      <p>Message: {manualTestResult.response}</p>
+                      <p>{manualTestResult.response}</p>
                     </div>
                   )}
                 </div>

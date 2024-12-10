@@ -14,11 +14,6 @@ const corsOptions = {
 app.use(cors(corsOptions)); // Allow frontend to communicate with the backend
 app.use(express.json()); // Parse JSON bodies
 
-// Google Safe Browsing API configuration
-const API_KEY = "AIzaSyBmA7PMdf7uaK8nBBZbbPbu4OkoIFlx5rI";
-const PROJECT_ID = "fyp-securelink-scanner";
-const API_ENDPOINT = `https://safebrowsing.googleapis.com/v4/threatMatches:find?key=${API_KEY}`;
-
 // API endpoints
 // Endpoint to forward URL to Python API
 app.post('/api/log-url', async (req, res) => {
@@ -29,8 +24,17 @@ app.post('/api/log-url', async (req, res) => {
             return res.status(400).json({ error: 'URL is required' });
         }
 
+        // Clean up the URL to remove any trailing whitespace/newlines
+        const cleanedUrl = url.trim();
+
         // Forward the URL to the Python API
-        const response = await axios.post('http://127.0.0.1:5000/api/log-url', { url });
+        const response = await axios.post(
+            'http://127.0.0.1:5000/api/log-url',
+            { url: cleanedUrl },
+            { headers: { 'Content-Type': 'application/json' } } //  correct Content-Type header
+        );
+
+        // Forward the Python API response back to the React frontend
         res.json(response.data);
     } catch (error) {
         console.error('Error forwarding to Python API:', error.message);
@@ -38,6 +42,12 @@ app.post('/api/log-url', async (req, res) => {
     }
 });
 
+
+// Google Safe Browsing API configuration
+const API_KEY = "AIzaSyBmA7PMdf7uaK8nBBZbbPbu4OkoIFlx5rI";
+const PROJECT_ID = "fyp-securelink-scanner";
+const API_ENDPOINT = `https://safebrowsing.googleapis.com/v4/threatMatches:find?key=${API_KEY}`;
+// API endpoint
 app.post('/api/check-url', async (req, res) => {
     try {
         const { url } = req.body;
@@ -45,14 +55,13 @@ app.post('/api/check-url', async (req, res) => {
         if (!url) {
             return res.status(400).json({ error: 'URL is required' });
         }
-
         const requestBody = {
             client: {
                 clientId: PROJECT_ID,
                 clientVersion: "1.0.0"
             },
             threatInfo: {
-                threatTypes: ["MALWARE", "SOCIAL_ENGINEERING", "UNWANTED_SOFTWARE", "POTENTIALLY_HARMFUL_APPLICATION"],
+                threatTypes: ["MALWARE", "SOCIAL_ENGINEERING"],
                 platformTypes: ["ANY_PLATFORM"],
                 threatEntryTypes: ["URL"],
                 threatEntries: [{ url: url }]
