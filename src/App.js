@@ -10,13 +10,14 @@ import Contact from './Pages/Contact';
 function App() {
   const [url, setUrl] = useState('');
   const [result, setResult] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [loadingSafeBrowsing, setLoadingSafeBrowsing] = useState(false);
+  const [loadingManualTest, setLoadingManualTest] = useState(false);
   const [manualTestResult, setManualTestResult] = useState(null);
   const [error, setError] = useState(null);
 
-  const handleSubmit = async (e) => {
+  const handleSafeBrowsingCheck = async (e) => {
     e.preventDefault();
-    setLoading(true);
+    setLoadingSafeBrowsing(true);
     setError(null);
     
     let urlToCheck = url;
@@ -30,7 +31,7 @@ function App() {
     } catch (error) {
         setError(error.response?.data?.details || 'Unable to check URL. Please try again.');
     } finally {
-        setLoading(false);
+        setLoadingSafeBrowsing(false);
     }
   };
 
@@ -40,7 +41,7 @@ function App() {
         return;
     }
 
-    setLoading(true);
+    setLoadingManualTest(true);
     try {
         const cleanedUrl = url.trim();
         const response = await axios.post(
@@ -54,7 +55,7 @@ function App() {
             error: error.response?.data?.message || 'Failed to perform manual test'
         });
     } finally {
-        setLoading(false);
+        setLoadingManualTest(false);
     }
   };
 
@@ -76,7 +77,7 @@ function App() {
             <div className="homepage">
               <h1>SecureLink Scanner</h1>
               <p>Enter a URL to check its legitimacy:</p>
-              <form onSubmit={handleSubmit} className="url-form">
+              <form onSubmit={handleSafeBrowsingCheck} className="url-form">
                 <input
                   type="text"
                   value={url}
@@ -84,18 +85,20 @@ function App() {
                   placeholder="Enter URL"
                   required
                 />
-                <button type="submit" disabled={loading}>
-                  {loading ? 'Checking...' : 'Check URL Safety'}
+                <button type="submit" disabled={loadingSafeBrowsing}>
+                  {loadingSafeBrowsing ? 'Checking...' : 'Check Google Safe Browsing'}
                 </button>
               </form>
 
               <button
                 className="manual-test-button"
                 onClick={handleManualTest}
-                disabled={loading}
+                disabled={loadingManualTest}
               >
-                {loading ? 'Logging...' : 'Run script checker'}
+                {loadingManualTest ? 'Logging...' : 'Run script checker'}
               </button>
+
+              {loadingManualTest && <div className="loading-spinner"></div>}
 
               {manualTestResult && (
                 <div className="manual-test-result">
@@ -106,8 +109,8 @@ function App() {
                       <h2>Manual Test Results</h2>
                       <p>Status: {manualTestResult.Prediction}</p>
                       <p>Warning Level: {manualTestResult['Warning Level']}</p>
-                      <div className="progress-container">
-                        <div className="progress-item">
+                      <div className="progress-container" style={{ display: 'flex', justifyContent: 'center', gap: '20px' }}>
+                        <div className="progress-item" style={{ width: '150px' }}>
                           <p>Legitimate Confidence</p>
                           <CircularProgressbar 
                             value={parseFloat(manualTestResult['Legitimate Confidence'])} 
@@ -115,7 +118,7 @@ function App() {
                             styles={buildStyles({ pathColor: 'green', textColor: 'black' })} 
                           />
                         </div>
-                        <div className="progress-item">
+                        <div className="progress-item" style={{ width: '150px' }}>
                           <p>Phishing Confidence</p>
                           <CircularProgressbar 
                             value={parseFloat(manualTestResult['Phishing Confidence'])} 
