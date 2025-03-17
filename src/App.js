@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
+import 'react-circular-progressbar/dist/styles.css';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import './App.css';
 import PreviousSearches from './Pages/previous-searches';
@@ -11,28 +13,22 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [manualTestResult, setManualTestResult] = useState(null);
   const [error, setError] = useState(null);
-  const [responseMessage, setResponseMessage] = useState(null);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+    setError(null);
     
-    // Basic URL validation
     let urlToCheck = url;
     if (!url.startsWith('http://') && !url.startsWith('https://')) {
         urlToCheck = 'http://' + url;
     }
     
     try {
-        const response = await axios.post('http://localhost:3001/api/check-url', { 
-            url: urlToCheck 
-        });
+        const response = await axios.post('http://localhost:3001/api/check-url', { url: urlToCheck });
         setResult(response.data);
     } catch (error) {
-        console.error("Error checking URL:", error.response?.data || error.message);
-        setResult({ 
-            error: error.response?.data?.details || 'Unable to check URL. Please try again.' 
-        });
+        setError(error.response?.data?.details || 'Unable to check URL. Please try again.');
     } finally {
         setLoading(false);
     }
@@ -52,10 +48,7 @@ function App() {
             { url: cleanedUrl },
             { headers: { 'Content-Type': 'application/json' } }
         );
-        // Make sure we're handling the response properly
-        setManualTestResult({ 
-            response: response.data.message || JSON.stringify(response.data)
-        });
+        setManualTestResult(response.data);
     } catch (error) {
         setManualTestResult({
             error: error.response?.data?.message || 'Failed to perform manual test'
@@ -104,20 +97,6 @@ function App() {
                 {loading ? 'Logging...' : 'Run script checker'}
               </button>
 
-              {result && (
-                <div className="result">
-                  {result.error ? (
-                    <p className="error">{result.error}</p>
-                  ) : (
-                    <div>
-                      <h2>URL Analysis Results</h2>
-                      <p>Status: {result.status}</p>
-                      <p>Details: {result.details}</p>
-                    </div>
-                  )}
-                </div>
-              )}
-
               {manualTestResult && (
                 <div className="manual-test-result">
                   {manualTestResult.error ? (
@@ -125,11 +104,32 @@ function App() {
                   ) : (
                     <div>
                       <h2>Manual Test Results</h2>
-                      <p>{manualTestResult.response}</p>
+                      <p>Status: {manualTestResult.Prediction}</p>
+                      <p>Warning Level: {manualTestResult['Warning Level']}</p>
+                      <div className="progress-container">
+                        <div className="progress-item">
+                          <p>Legitimate Confidence</p>
+                          <CircularProgressbar 
+                            value={parseFloat(manualTestResult['Legitimate Confidence'])} 
+                            text={`${manualTestResult['Legitimate Confidence']}`} 
+                            styles={buildStyles({ pathColor: 'green', textColor: 'black' })} 
+                          />
+                        </div>
+                        <div className="progress-item">
+                          <p>Phishing Confidence</p>
+                          <CircularProgressbar 
+                            value={parseFloat(manualTestResult['Phishing Confidence'])} 
+                            text={`${manualTestResult['Phishing Confidence']}`} 
+                            styles={buildStyles({ pathColor: 'red', textColor: 'black' })} 
+                          />
+                        </div>
+                      </div>
                     </div>
                   )}
                 </div>
               )}
+
+              {error && <p className="error">{error}</p>}
             </div>
           }
         />
