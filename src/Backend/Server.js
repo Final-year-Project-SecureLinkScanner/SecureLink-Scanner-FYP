@@ -12,16 +12,15 @@ const MONGO_URI = process.env.MONGO_URI;
 const API_ENDPOINT = `https://safebrowsing.googleapis.com/v4/threatMatches:find?key=${API_KEY}`;
 const app = express();
 const port = 3001;
-//debugging
+
 console.log("Loaded GOOGLE_API_KEY:", API_KEY);
 console.log("Loaded PROJECT_ID:", PROJECT_ID);
 
-// MongoDB Connection
+// Connect to MongoDB
 mongoose.connect(MONGO_URI)
-  .then(() => console.log("*** MongoDB connected ***"))
-  .catch(err => console.error(" MongoDB connection error:", err));
+  .then(() => console.log("✅ MongoDB connected"))
+  .catch(err => console.error("❌ MongoDB connection error:", err));
 
-// Middleware
 app.use(cors({
   origin: "http://localhost:3000",
   methods: ["GET", "POST"],
@@ -29,25 +28,36 @@ app.use(cors({
 }));
 app.use(express.json());
 
-//  GOOGLE SAFE BROWSING SCAN + SAVE TO MONGO
+//  Helper to normalise and clean URL
+function normalizeUrl(inputUrl) {
+  try {
+    let clean = inputUrl.trim().toLowerCase();
+    if (!clean.startsWith('http://') && !clean.startsWith('https://')) {
+      clean = 'https://' + clean;
+    }
+    const parsed = new URL(clean);
+    return parsed.hostname.replace(/^www\./, '');
+  } catch {
+    return inputUrl;
+  }
+}
+
+//  Google Safe Browsing Scan with Normalisation & Upsert
 app.post('/api/check-url', async (req, res) => {
   try {
-    const { url } = req.body;
+    let { url } = req.body;
+    if (!url) return res.status(400).json({ error: 'URL is required' });
 
-    if (!url) {
-      return res.status(400).json({ error: 'URL is required' });
-    }
+    const normalizedUrl = normalizeUrl(url);
+    const fullUrlForAPI = `https://${normalizedUrl}`;
 
     const requestBody = {
-      client: {
-        clientId: PROJECT_ID,
-        clientVersion: "1.0.0"
-      },
+      client: { clientId: PROJECT_ID, clientVersion: "1.0.0" },
       threatInfo: {
         threatTypes: ["MALWARE", "SOCIAL_ENGINEERING"],
         platformTypes: ["ANY_PLATFORM"],
         threatEntryTypes: ["URL"],
-        threatEntries: [{ url }]
+        threatEntries: [{ url: fullUrlForAPI }]
       }
     };
 
@@ -57,23 +67,26 @@ app.post('/api/check-url', async (req, res) => {
       validateStatus: (status) => status === 200
     });
 
-    const isUnsafe = response.data && response.data.matches && response.data.matches.length > 0;
+    const isUnsafe = response.data?.matches?.length > 0;
 
-    const result = {
-      url,
-      googleSafeBrowsing: {
-        status: isUnsafe ? "Unsafe" : "Safe",
-        details: isUnsafe
-          ? "This URL has been flagged as potentially dangerous."
-          : "No threats detected for this URL."
-      }
+    const googleResult = {
+      status: isUnsafe ? "Unsafe" : "Safe",
+      details: isUnsafe
+        ? "This URL has been flagged as potentially dangerous."
+        : "No threats detected for this URL."
     };
 
-    //  Save to MongoDB
-    await new ScanResult(result).save();
+    await ScanResult.findOneAndUpdate(
+      { url: normalizedUrl },
+      {
+        url: normalizedUrl,
+        googleSafeBrowsing: googleResult,
+        scanDate: new Date()
+      },
+      { upsert: true, new: true }
+    );
 
-    //  Return the Google scan part to frontend
-    res.json(result.googleSafeBrowsing);
+    res.json(googleResult);
 
   } catch (error) {
     console.error('API Error:', {
@@ -90,41 +103,56 @@ app.post('/api/check-url', async (req, res) => {
   }
 });
 
-// Existing ML Endpoint 
+// ML Model Scan with Normalisation & Upsert
 app.post('/api/log-url', async (req, res) => {
   try {
-    const { url } = req.body;
+    let { url } = req.body;
+    if (!url) return res.status(400).json({ error: 'URL is required' });
 
-    if (!url) {
-      return res.status(400).json({ error: 'URL is required' });
-    }
-
-    const cleanedUrl = url.trim();
+    const normalizedUrl = normalizeUrl(url);
+    const fullUrlForAPI = `https://${normalizedUrl}`;
 
     const response = await axios.post(
       'http://127.0.0.1:5000/api/predict-url',
-      { url: cleanedUrl },
+      { url: fullUrlForAPI },
       { headers: { 'Content-Type': 'application/json' } }
     );
 
-    res.json(response.data);
+    const data = response.data;
+
+    await ScanResult.findOneAndUpdate(
+      { url: normalizedUrl },
+      {
+        url: normalizedUrl,
+        mlResult: {
+          prediction: data.Prediction,
+          warningLevel: data["Warning Level"],
+          phishingConfidence: parseFloat(data["Phishing Confidence"]),
+          legitimateConfidence: parseFloat(data["Legitimate Confidence"])
+        },
+        scanDate: new Date()
+      },
+      { upsert: true, new: true }
+    );
+
+    res.json(data);
+
   } catch (error) {
     console.error('Error forwarding to Python API:', error.message);
     res.status(500).json({ error: 'Failed to forward URL to Python API' });
   }
 });
 
-// GET all stored scan results
+// Return All Stored Scans
 app.get('/api/urls', async (req, res) => {
-    try {
-      const results = await ScanResult.find().sort({ scanDate: -1 });
-      res.json(results);
-    } catch (error) {
-      console.error(" Failed to fetch URL scan results:", error.message);
-      res.status(500).json({ error: "Failed to fetch scan results" });
-    }
-  });
-  
+  try {
+    const results = await ScanResult.find().sort({ scanDate: -1 });
+    res.json(results);
+  } catch (error) {
+    console.error("❌ Failed to fetch scan results:", error.message);
+    res.status(500).json({ error: "Failed to fetch scan results" });
+  }
+});
 
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);
