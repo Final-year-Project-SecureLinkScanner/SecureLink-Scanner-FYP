@@ -54,7 +54,7 @@ function URLDatabase() {
               <th>URL</th>
               <th>Google Status</th>
               <th>Google Details</th>
-              <th>ML Prediction</th>
+              <th>Model Prediction</th>
               <th>Warning Level</th>
               <th>Phishing %</th>
               <th>Legitimate %</th>
