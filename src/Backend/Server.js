@@ -1,9 +1,32 @@
 const express = require('express');
 const axios = require('axios');
 const cors = require('cors');
+require('dotenv').config({ path: '../../.env' });
+
+const API_KEY = process.env.GOOGLE_API_KEY;
+const PROJECT_ID = process.env.PROJECT_ID;
+
+const API_ENDPOINT = `https://safebrowsing.googleapis.com/v4/threatMatches:find?key=${API_KEY}`;
+// const API_ENDPOINT = `https://safebrowsing.googleapis.com/v4/threatMatches:find?key=${API_KEY}`; // For production use
 
 const app = express();
 const port = 3001; // different port to avoid conflict with React server
+
+console.log("Loaded GOOGLE_API_KEY:", API_KEY);
+console.log("Loaded PROJECT_ID:", PROJECT_ID);
+
+
+const mongoose = require('mongoose');
+require('dotenv').config({ path: '../../.env' });
+
+mongoose.connect(process.env.MONGO_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+}).then(() => {
+  console.log("✅ MongoDB connected");
+}).catch(err => {
+  console.error("❌ MongoDB connection error:", err);
+});
 
 // Middleware
 const corsOptions = {
@@ -27,12 +50,12 @@ app.post('/api/log-url', async (req, res) => {
         // Clean up the URL to remove any trailing whitespace/newlines
         const cleanedUrl = url.trim();
 
-        // Forward the URL to the Python API
         const response = await axios.post(
-            'http://127.0.0.1:5000/api/log-url',
+            'http://127.0.0.1:5000/api/predict-url',  // ✅ Correct route
             { url: cleanedUrl },
-            { headers: { 'Content-Type': 'application/json' } } //  correct Content-Type header
+            { headers: { 'Content-Type': 'application/json' } }
         );
+        
 
         // Forward the Python API response back to the React frontend
         res.json(response.data);
@@ -43,10 +66,7 @@ app.post('/api/log-url', async (req, res) => {
 });
 
 
-// Google Safe Browsing API configuration
-const API_KEY = "AIzaSyBmA7PMdf7uaK8nBBZbbPbu4OkoIFlx5rI";
-const PROJECT_ID = "fyp-securelink-scanner";
-const API_ENDPOINT = `https://safebrowsing.googleapis.com/v4/threatMatches:find?key=${API_KEY}`;
+
 // API endpoint
 app.post('/api/check-url', async (req, res) => {
     try {
