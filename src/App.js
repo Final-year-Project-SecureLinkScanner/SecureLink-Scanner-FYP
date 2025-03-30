@@ -4,58 +4,62 @@ import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import './App.css';
-import PreviousSearches from './Pages/previous-searches';
+import URLDatabase from './Pages/URLDatabase';
 import Contact from './Pages/Contact';
 
 function App() {
   const [url, setUrl] = useState('');
-  const [result, setResult] = useState(null);
+  const [googleResult, setGoogleResult] = useState(null);
+  const [mlResult, setMlResult] = useState(null);
   const [loadingSafeBrowsing, setLoadingSafeBrowsing] = useState(false);
   const [loadingManualTest, setLoadingManualTest] = useState(false);
-  const [manualTestResult, setManualTestResult] = useState(null);
   const [error, setError] = useState(null);
 
   const handleSafeBrowsingCheck = async (e) => {
     e.preventDefault();
     setLoadingSafeBrowsing(true);
     setError(null);
-    
+    setGoogleResult(null); // Reset old result
+
     let urlToCheck = url;
     if (!url.startsWith('http://') && !url.startsWith('https://')) {
-        urlToCheck = 'http://' + url;
+      urlToCheck = 'http://' + url;
     }
-    
+
     try {
-        const response = await axios.post('http://localhost:3001/api/check-url', { url: urlToCheck });
-        setResult(response.data);
+      const response = await axios.post('http://localhost:3001/api/check-url', { url: urlToCheck });
+      setGoogleResult(response.data);
     } catch (error) {
-        setError(error.response?.data?.details || 'Unable to check URL. Please try again.');
+      setError(error.response?.data?.details || 'Unable to check URL. Please try again.');
     } finally {
-        setLoadingSafeBrowsing(false);
+      setLoadingSafeBrowsing(false);
     }
   };
 
   const handleManualTest = async () => {
     if (!url) {
-        setManualTestResult({ error: 'Please enter a URL first' });
-        return;
+      setMlResult({ error: 'Please enter a URL first' });
+      return;
     }
 
     setLoadingManualTest(true);
+    setMlResult(null); // Reset old result
+    setError(null);
+
     try {
-        const cleanedUrl = url.trim();
-        const response = await axios.post(
-            'http://localhost:3001/api/log-url',
-            { url: cleanedUrl },
-            { headers: { 'Content-Type': 'application/json' } }
-        );
-        setManualTestResult(response.data);
+      const cleanedUrl = url.trim();
+      const response = await axios.post(
+        'http://localhost:3001/api/log-url',
+        { url: cleanedUrl },
+        { headers: { 'Content-Type': 'application/json' } }
+      );
+      setMlResult(response.data);
     } catch (error) {
-        setManualTestResult({
-            error: error.response?.data?.message || 'Failed to perform manual test'
-        });
+      setMlResult({
+        error: error.response?.data?.message || 'Failed to perform manual test'
+      });
     } finally {
-        setLoadingManualTest(false);
+      setLoadingManualTest(false);
     }
   };
 
@@ -65,7 +69,7 @@ function App() {
         <h1>SecureLink Scanner</h1>
         <ul className="nav-links">
           <li><Link to="/">Home</Link></li>
-          <li><Link to="/previous-searches">View Previous Searches</Link></li>
+          <li><Link to="/URLDatabase">View URLDatabase</Link></li>
           <li><Link to="/contact">Contact</Link></li>
         </ul>
       </nav>
@@ -90,6 +94,14 @@ function App() {
                 </button>
               </form>
 
+              {googleResult && (
+                <div className="google-result">
+                  <h2>Google Safe Browsing Result</h2>
+                  <p>Status: {googleResult.status}</p>
+                  <p>Details: {googleResult.details}</p>
+                </div>
+              )}
+
               <button
                 className="manual-test-button"
                 onClick={handleManualTest}
@@ -100,30 +112,30 @@ function App() {
 
               {loadingManualTest && <div className="loading-spinner"></div>}
 
-              {manualTestResult && (
+              {mlResult && (
                 <div className="manual-test-result">
-                  {manualTestResult.error ? (
-                    <p className="error">{manualTestResult.error}</p>
+                  {mlResult.error ? (
+                    <p className="error">{mlResult.error}</p>
                   ) : (
                     <div>
-                      <h2>Manual Test Results</h2>
-                      <p>Status: {manualTestResult.Prediction}</p>
-                      <p>Warning Level: {manualTestResult['Warning Level']}</p>
+                      <h2>ML Model Result</h2>
+                      <p>Status: {mlResult.Prediction}</p>
+                      <p>Warning Level: {mlResult['Warning Level']}</p>
                       <div className="progress-container" style={{ display: 'flex', justifyContent: 'center', gap: '20px' }}>
                         <div className="progress-item" style={{ width: '150px' }}>
                           <p>Legitimate Confidence</p>
-                          <CircularProgressbar 
-                            value={parseFloat(manualTestResult['Legitimate Confidence'])} 
-                            text={`${manualTestResult['Legitimate Confidence']}`} 
-                            styles={buildStyles({ pathColor: 'green', textColor: 'black' })} 
+                          <CircularProgressbar
+                            value={parseFloat(mlResult['Legitimate Confidence'])}
+                            text={`${mlResult['Legitimate Confidence']}`}
+                            styles={buildStyles({ pathColor: 'green', textColor: 'black' })}
                           />
                         </div>
                         <div className="progress-item" style={{ width: '150px' }}>
                           <p>Phishing Confidence</p>
-                          <CircularProgressbar 
-                            value={parseFloat(manualTestResult['Phishing Confidence'])} 
-                            text={`${manualTestResult['Phishing Confidence']}`} 
-                            styles={buildStyles({ pathColor: 'red', textColor: 'black' })} 
+                          <CircularProgressbar
+                            value={parseFloat(mlResult['Phishing Confidence'])}
+                            text={`${mlResult['Phishing Confidence']}`}
+                            styles={buildStyles({ pathColor: 'red', textColor: 'black' })}
                           />
                         </div>
                       </div>
@@ -136,7 +148,7 @@ function App() {
             </div>
           }
         />
-        <Route path="/previous-searches" element={<PreviousSearches />} />
+        <Route path="/URLDatabase" element={<URLDatabase />} />
         <Route path="/contact" element={<Contact />} />
       </Routes>
     </Router>
