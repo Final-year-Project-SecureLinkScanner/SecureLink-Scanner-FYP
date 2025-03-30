@@ -18,8 +18,8 @@ console.log("Loaded PROJECT_ID:", PROJECT_ID);
 
 // Connect to MongoDB
 mongoose.connect(MONGO_URI)
-  .then(() => console.log("✅ MongoDB connected"))
-  .catch(err => console.error("❌ MongoDB connection error:", err));
+  .then(() => console.log(" MongoDB connected"))
+  .catch(err => console.error(" MongoDB connection error:", err));
 
 app.use(cors({
   origin: "http://localhost:3000",
@@ -149,7 +149,7 @@ app.get('/api/urls', async (req, res) => {
     const results = await ScanResult.find().sort({ scanDate: -1 });
     res.json(results);
   } catch (error) {
-    console.error("❌ Failed to fetch scan results:", error.message);
+    console.error(" Failed to fetch scan results:", error.message);
     res.status(500).json({ error: "Failed to fetch scan results" });
   }
 });

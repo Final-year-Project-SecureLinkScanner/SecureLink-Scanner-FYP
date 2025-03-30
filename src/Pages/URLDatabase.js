@@ -6,6 +6,7 @@ function URLDatabase() {
   const [urls, setUrls] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [filter, setFilter] = useState('all');
 
   useEffect(() => {
     const fetchURLs = async () => {
@@ -23,16 +24,30 @@ function URLDatabase() {
     fetchURLs();
   }, []);
 
+  const filteredUrls = urls.filter((item) => {
+    const prediction = item.mlResult?.prediction?.toLowerCase();
+  
+    if (filter === 'phishing') return prediction === 'phishing' || prediction === 'suspicious';
+    if (filter === 'legit') return prediction === 'legitimate';
+    return true;
+  });
+  
+
   return (
     <div className="url-database">
       <h1>Scanned URLs Database</h1>
 
+      <div className="filter-buttons">
+        <button onClick={() => setFilter('all')} className={filter === 'all' ? 'active' : ''}>All</button>
+        <button onClick={() => setFilter('phishing')} className={filter === 'phishing' ? 'active' : ''}>Phishing</button>
+        <button onClick={() => setFilter('legit')} className={filter === 'legit' ? 'active' : ''}>Legitimate</button>
+      </div>
+
       {loading && <p>Loading scan results...</p>}
       {error && <p className="error">{error}</p>}
+      {!loading && filteredUrls.length === 0 && <p>No matching results found.</p>}
 
-      {!loading && urls.length === 0 && <p>No scan results yet.</p>}
-
-      {!loading && urls.length > 0 && (
+      {!loading && filteredUrls.length > 0 && (
         <table className="scan-table">
           <thead>
             <tr>
@@ -47,12 +62,21 @@ function URLDatabase() {
             </tr>
           </thead>
           <tbody>
-            {urls.map((item) => (
+            {filteredUrls.map((item) => (
               <tr key={item._id}>
                 <td>{item.url}</td>
                 <td>{item.googleSafeBrowsing?.status || 'N/A'}</td>
-                <td>{item.googleSafeBrowsing?.details || 'N/A'}</td>
-                <td>{item.mlResult?.prediction || 'N/A'}</td>
+                <td>
+                  <span className={`status-badge ${item.googleSafeBrowsing?.status?.toLowerCase()}`}>
+                    {item.googleSafeBrowsing?.status || 'N/A'}
+                  </span>
+                </td>
+
+                <td>
+                  <span className={`ml-badge ${item.mlResult?.prediction?.toLowerCase()}`}>
+                    {item.mlResult?.prediction || 'N/A'}
+                  </span>
+                </td>
                 <td>{item.mlResult?.warningLevel || 'N/A'}</td>
                 <td>{item.mlResult?.phishingConfidence ?? 'N/A'}%</td>
                 <td>{item.mlResult?.legitimateConfidence ?? 'N/A'}%</td>
