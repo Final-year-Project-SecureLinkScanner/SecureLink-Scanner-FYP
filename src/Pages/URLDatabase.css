@@ -1,0 +1,22 @@
+.url-database {
+    padding: 20px;
+    font-family: Arial, sans-serif;
+  }
+  
+  .scan-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+  }
+  
+  .scan-table th,
+  .scan-table td {
+    border: 1px solid #ddd;
+    padding: 10px;
+    text-align: left;
+  }
+  
+  .scan-table th {
+    background-color: #f4f4f4;
+  }
+  
