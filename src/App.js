@@ -19,7 +19,7 @@ function App() {
     e.preventDefault();
     setLoadingSafeBrowsing(true);
     setError(null);
-    setGoogleResult(null); // Reset old result
+    setGoogleResult(null);
 
     let urlToCheck = url;
     if (!url.startsWith('http://') && !url.startsWith('https://')) {
@@ -43,7 +43,7 @@ function App() {
     }
 
     setLoadingManualTest(true);
-    setMlResult(null); // Reset old result
+    setMlResult(null);
     setError(null);
 
     try {
@@ -139,6 +139,19 @@ function App() {
                           />
                         </div>
                       </div>
+
+                      {(mlResult.Prediction === 'PHISHING' || mlResult.Prediction === 'SUSPICIOUS') && (
+                        <div style={{ marginTop: '20px', textAlign: 'center' }}>
+                          <a
+                            className="kasm-button"
+                            href={`https://172-237-116-195.ip.linodeusercontent.com/#/kasm/d8f7f043-3175-4b79-8f1b-0335b3716910=${url.startsWith('http') ? url : 'https://' + url}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            🛡️ Open URL in Kasm Secure Browser
+                          </a>
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>
