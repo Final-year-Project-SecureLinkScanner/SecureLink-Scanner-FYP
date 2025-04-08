@@ -26,12 +26,11 @@ function URLDatabase() {
 
   const filteredUrls = urls.filter((item) => {
     const prediction = item.mlResult?.prediction?.toLowerCase();
-  
+
     if (filter === 'phishing') return prediction === 'phishing' || prediction === 'suspicious';
     if (filter === 'legit') return prediction === 'legitimate';
     return true;
   });
-  
 
   return (
     <div className="url-database">
@@ -65,18 +64,21 @@ function URLDatabase() {
             {filteredUrls.map((item) => (
               <tr key={item._id}>
                 <td>{item.url}</td>
-                <td>{item.googleSafeBrowsing?.status || 'N/A'}</td>
+
                 <td>
                   <span className={`status-badge ${item.googleSafeBrowsing?.status?.toLowerCase()}`}>
                     {item.googleSafeBrowsing?.status || 'N/A'}
                   </span>
                 </td>
 
+                <td>{item.googleSafeBrowsing?.details || 'N/A'}</td>
+
                 <td>
                   <span className={`ml-badge ${item.mlResult?.prediction?.toLowerCase()}`}>
                     {item.mlResult?.prediction || 'N/A'}
                   </span>
                 </td>
+
                 <td>{item.mlResult?.warningLevel || 'N/A'}</td>
                 <td>{item.mlResult?.phishingConfidence ?? 'N/A'}%</td>
                 <td>{item.mlResult?.legitimateConfidence ?? 'N/A'}%</td>
