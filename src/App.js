@@ -14,6 +14,7 @@ function App() {
   const [loadingSafeBrowsing, setLoadingSafeBrowsing] = useState(false);
   const [loadingManualTest, setLoadingManualTest] = useState(false);
   const [error, setError] = useState(null);
+  const [navOpen, setNavOpen] = useState(false);
 
   const handleSafeBrowsingCheck = async (e) => {
     e.preventDefault();
@@ -22,8 +23,8 @@ function App() {
     setGoogleResult(null);
 
     let urlToCheck = url;
-    if (!url.startsWith('http://') && !url.startsWith('https://')) {
-      urlToCheck = 'http://' + url;
+    if (!urlToCheck.startsWith('http://') && !urlToCheck.startsWith('https://')) {
+      urlToCheck = 'http://' + urlToCheck;
     }
 
     try {
@@ -75,7 +76,10 @@ function App() {
     <Router>
       <nav className="navbar">
         <h1>SecureLink Scanner</h1>
-        <ul className="nav-links">
+        <button className="hamburger" onClick={() => setNavOpen(!navOpen)}>
+          ☰
+        </button>
+        <ul className={`nav-links ${navOpen ? 'show' : ''}`}>
           <li><Link to="/">Home</Link></li>
           <li><Link to="/URLDatabase">View URLDatabase</Link></li>
           <li><Link to="/contact">Contact</Link></li>
@@ -135,8 +139,8 @@ function App() {
                       <h2>ML Model Result</h2>
                       <p>Status: {mlResult.Prediction}</p>
                       <p>Warning Level: {mlResult['Warning Level']}</p>
-                      <div className="progress-container" style={{ display: 'flex', justifyContent: 'center', gap: '20px' }}>
-                        <div className="progress-item" style={{ width: '150px' }}>
+                      <div className="progress-container">
+                        <div className="progress-item">
                           <p>Legitimate Confidence</p>
                           <CircularProgressbar
                             value={parseFloat(mlResult['Legitimate Confidence'])}
@@ -144,7 +148,7 @@ function App() {
                             styles={buildStyles({ pathColor: 'green', textColor: 'black' })}
                           />
                         </div>
-                        <div className="progress-item" style={{ width: '150px' }}>
+                        <div className="progress-item">
                           <p>Phishing Confidence</p>
                           <CircularProgressbar
                             value={parseFloat(mlResult['Phishing Confidence'])}
