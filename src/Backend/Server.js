@@ -113,7 +113,7 @@ app.post('/api/log-url', async (req, res) => {
     const fullUrlForAPI = `https://${normalizedUrl}`;
 
     const response = await axios.post(
-      'http://127.0.0.1:5000/api/predict-url',
+      'https://mlmodel-ke7i.onrender.com/api/predict-url',    
       { url: fullUrlForAPI },
       { headers: { 'Content-Type': 'application/json' } }
     );
