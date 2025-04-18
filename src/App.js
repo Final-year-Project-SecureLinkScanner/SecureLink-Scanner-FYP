@@ -88,19 +88,24 @@ function App() {
               <p>Enter a URL to check its legitimacy:</p>
               <form onSubmit={handleSafeBrowsingCheck} className="url-form">
                 <input
+                  id="urlInput"
                   type="text"
                   value={url}
                   onChange={(e) => setUrl(e.target.value)}
                   placeholder="Enter URL"
                   required
                 />
-                <button type="submit" disabled={loadingSafeBrowsing}>
+                <button
+                  id="checkButton"
+                  type="submit"
+                  disabled={loadingSafeBrowsing}
+                >
                   {loadingSafeBrowsing ? 'Checking...' : 'Check Google Safe Browsing'}
                 </button>
               </form>
 
               {googleResult && (
-                <div className="google-result">
+                <div id="googleResult" className="google-result">
                   <h2>Google Safe Browsing Result</h2>
                   <p>Status: {googleResult.status}</p>
                   <p>Details: {googleResult.details}</p>
@@ -108,6 +113,7 @@ function App() {
               )}
 
               <button
+                id="mlCheckButton"
                 className="manual-test-button"
                 onClick={handleManualTest}
                 disabled={loadingManualTest}
@@ -118,7 +124,7 @@ function App() {
               {loadingManualTest && <div className="loading-spinner"></div>}
 
               {mlResult && (
-                <div className="manual-test-result">
+                <div id="mlResult" className="manual-test-result">
                   {mlResult.error ? (
                     <p className="error">{mlResult.error}</p>
                   ) : (
