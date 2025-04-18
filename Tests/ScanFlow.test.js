@@ -4,31 +4,58 @@ const { Builder, By, until } = require('selenium-webdriver');
   const driver = await new Builder().forBrowser('chrome').build();
 
   try {
+    // STEP 1: Visit the app
     await driver.get('http://localhost:3000');
 
-    // STEP 1: Fill the input
-    const urlInput = await driver.findElement(By.id('urlInput'));
-    await urlInput.clear();
-    await urlInput.sendKeys('http://google.com');
+    // FIRST TEST: Safe URL 
+    console.log('Testing with http://google.com');
 
-    // STEP 2: Google Safe Browsing check
-    const checkButton = await driver.findElement(By.id('checkButton'));
-    await checkButton.click();
+    const urlInput1 = await driver.findElement(By.id('urlInput'));
+    await urlInput1.clear();
+    await urlInput1.sendKeys('http://google.com');
+
+    const checkButton1 = await driver.findElement(By.id('checkButton'));
+    await checkButton1.click();
 
     await driver.wait(until.elementLocated(By.id('googleResult')), 10000);
-    const googleResult = await driver.findElement(By.id('googleResult'));
-    const resultText = await googleResult.getText();
-    console.log('✅ Google Safe Browsing Result:\n', resultText);
+    const googleResult1 = await driver.findElement(By.id('googleResult'));
+    const resultText1 = await googleResult1.getText();
+    console.log('Google Safe Browsing Result:\n', resultText1);
 
-    // STEP 3: Click ML model checker
-    const mlButton = await driver.findElement(By.id('mlCheckButton'));
-    await mlButton.click();
+    const mlButton1 = await driver.findElement(By.id('mlCheckButton'));
+    await mlButton1.click();
 
-    // STEP 4: Wait for ML result
     await driver.wait(until.elementLocated(By.id('mlResult')), 10000);
-    const mlResult = await driver.findElement(By.id('mlResult'));
-    const mlText = await mlResult.getText();
-    console.log('ML Model Result:\n', mlText);
+    const mlResult1 = await driver.findElement(By.id('mlResult'));
+    const mlText1 = await mlResult1.getText();
+    console.log('ML Model Result:\n', mlText1);
+
+    // REFRESH THE APP 
+    await driver.navigate().refresh();
+    await driver.wait(until.elementLocated(By.id('urlInput')), 5000);
+
+    // SECOND TEST: Phishing URL 
+    console.log('Testing with phishing link www.customs.ie-charge.info');
+
+    const urlInput2 = await driver.findElement(By.id('urlInput'));
+    await urlInput2.clear();
+    await urlInput2.sendKeys('www.customs.ie-charge.info');
+
+    const checkButton2 = await driver.findElement(By.id('checkButton'));
+    await checkButton2.click();
+
+    await driver.wait(until.elementLocated(By.id('googleResult')), 10000);
+    const googleResult2 = await driver.findElement(By.id('googleResult'));
+    const resultText2 = await googleResult2.getText();
+    console.log('Google Safe Browsing Result:\n', resultText2);
+
+    const mlButton2 = await driver.findElement(By.id('mlCheckButton'));
+    await mlButton2.click();
+
+    await driver.wait(until.elementLocated(By.id('mlResult')), 10000);
+    const mlResult2 = await driver.findElement(By.id('mlResult'));
+    const mlText2 = await mlResult2.getText();
+    console.log('ML Model Result:\n', mlText2);
 
   } catch (err) {
     console.error('Test failed:', err);
