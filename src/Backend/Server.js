@@ -3,7 +3,7 @@ const axios = require('axios');
 const cors = require('cors');
 const mongoose = require('mongoose');
 const ScanResult = require('./ScanResults');
-require('dotenv').config({ path: '../../.env' });
+require('dotenv').config();
 
 const API_KEY = process.env.GOOGLE_API_KEY;
 const PROJECT_ID = process.env.PROJECT_ID;
