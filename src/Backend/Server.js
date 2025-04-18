@@ -11,24 +11,25 @@ const MONGO_URI = process.env.MONGO_URI;
 
 const API_ENDPOINT = `https://safebrowsing.googleapis.com/v4/threatMatches:find?key=${API_KEY}`;
 const app = express();
-const port = 3001;
+const port = process.env.PORT || 3001; // Required for Render
 
 console.log("Loaded GOOGLE_API_KEY:", API_KEY);
 console.log("Loaded PROJECT_ID:", PROJECT_ID);
 
 // Connect to MongoDB
 mongoose.connect(MONGO_URI)
-  .then(() => console.log(" MongoDB connected"))
-  .catch(err => console.error(" MongoDB connection error:", err));
+  .then(() => console.log("MongoDB connected"))
+  .catch(err => console.error("MongoDB connection error:", err));
 
+// Allow Firebase frontend to access this backend
 app.use(cors({
-  origin: "http://localhost:3000",
+  origin: ["http://localhost:3000", "https://link-scanner-98939.web.app"],
   methods: ["GET", "POST"],
   allowedHeaders: ["Content-Type"]
 }));
 app.use(express.json());
 
-//  Helper to normalise and clean URL
+//  Normalise URL
 function normalizeUrl(inputUrl) {
   try {
     let clean = inputUrl.trim().toLowerCase();
@@ -42,7 +43,7 @@ function normalizeUrl(inputUrl) {
   }
 }
 
-//  Google Safe Browsing Scan with Normalisation & Upsert
+// Google Safe Browsing check
 app.post('/api/check-url', async (req, res) => {
   try {
     let { url } = req.body;
@@ -103,7 +104,7 @@ app.post('/api/check-url', async (req, res) => {
   }
 });
 
-// ML Model Scan with Normalisation & Upsert
+//ML Model Scan
 app.post('/api/log-url', async (req, res) => {
   try {
     let { url } = req.body;
@@ -113,7 +114,7 @@ app.post('/api/log-url', async (req, res) => {
     const fullUrlForAPI = `https://${normalizedUrl}`;
 
     const response = await axios.post(
-      'https://mlmodel-ke7i.onrender.com/api/predict-url',    
+      'https://mlmodel-ke7i.onrender.com/api/predict-url',
       { url: fullUrlForAPI },
       { headers: { 'Content-Type': 'application/json' } }
     );
@@ -149,11 +150,12 @@ app.get('/api/urls', async (req, res) => {
     const results = await ScanResult.find().sort({ scanDate: -1 });
     res.json(results);
   } catch (error) {
-    console.error(" Failed to fetch scan results:", error.message);
+    console.error("Failed to fetch scan results:", error.message);
     res.status(500).json({ error: "Failed to fetch scan results" });
   }
 });
 
+// Using Render's port
 app.listen(port, () => {
-  console.log(`Server is running on http://localhost:${port}`);
+  console.log(`Server is running on port ${port}`);
 });
