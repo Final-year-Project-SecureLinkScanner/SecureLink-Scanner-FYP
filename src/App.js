@@ -27,7 +27,10 @@ function App() {
     }
 
     try {
-      const response = await axios.post('http://localhost:3001/api/check-url', { url: urlToCheck });
+      const response = await axios.post(
+        'https://securelink-scanner-fyp-backend.onrender.com/api/check-url',
+        { url: urlToCheck }
+      );
       setGoogleResult(response.data);
     } catch (error) {
       setError(error.response?.data?.details || 'Unable to check URL. Please try again.');
@@ -49,7 +52,7 @@ function App() {
     try {
       const cleanedUrl = url.trim();
       const response = await axios.post(
-        'http://localhost:3001/api/log-url',
+        'https://securelink-scanner-fyp-backend.onrender.com/api/log-url',
         { url: cleanedUrl },
         { headers: { 'Content-Type': 'application/json' } }
       );
