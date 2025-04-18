@@ -63,6 +63,11 @@ function App() {
     }
   };
 
+  const buildKasmURL = (inputUrl) => {
+    const formatted = inputUrl.startsWith('http') ? inputUrl : 'https://' + inputUrl;
+    return `https://172-237-116-195.ip.linodeusercontent.com/#/client?workspace_id=36fc10c0f6024c4c95de499baa297fc6&launch_url=${encodeURIComponent(formatted)}`;
+  };
+
   return (
     <Router>
       <nav className="navbar">
@@ -144,7 +149,7 @@ function App() {
                         <div style={{ marginTop: '20px', textAlign: 'center' }}>
                           <a
                             className="kasm-button"
-                            href={`https://172-237-116-195.ip.linodeusercontent.com/#/kasm/d8f7f043-3175-4b79-8f1b-0335b3716910=${url.startsWith('http') ? url : 'https://' + url}`}
+                            href={buildKasmURL(url)}
                             target="_blank"
                             rel="noopener noreferrer"
                           >
