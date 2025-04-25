@@ -177,7 +177,7 @@ function App() {
                                 📋 Why was this flagged?
                               </summary>
                               <ul style={{ marginTop: '10px', textAlign: 'left' }}>
-                                {mlResult['Top Reasons']?.map((reason, index) => (
+                                {mlResult['SHAP Explainations']?.map((reason, index) => (
                                   <li key={index}>
                                     {reason.explanation} — <em>impact: {reason.impact}</em>
                                   </li>
