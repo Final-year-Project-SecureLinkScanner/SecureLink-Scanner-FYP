@@ -227,3 +227,18 @@ body {
     top: 65px;
   }
 }
+
+.top-reasons summary {
+  font-size: 1rem;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.top-reasons ul {
+  list-style: disc;
+  margin-left: 20px;
+}
+
+.top-reasons li {
+  margin-bottom: 8px;
+}

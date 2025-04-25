@@ -159,16 +159,33 @@ function App() {
                       </div>
 
                       {(mlResult.Prediction === 'PHISHING' || mlResult.Prediction === 'SUSPICIOUS') && (
-                        <div style={{ marginTop: '20px', textAlign: 'center' }}>
-                          <a
-                            className="kasm-button"
-                            href={buildKasmURL(url)}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                          >
-                            🛡️ Open URL in Kasm Secure Browser
-                          </a>
-                        </div>
+                        <>
+                          <div style={{ marginTop: '20px', textAlign: 'center' }}>
+                            <a
+                              className="kasm-button"
+                              href={buildKasmURL(url)}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              🛡️ Open URL in Kasm Secure Browser
+                            </a>
+                          </div>
+
+                          <div className="top-reasons" style={{ marginTop: '30px' }}>
+                            <details>
+                              <summary style={{ fontWeight: 'bold', cursor: 'pointer' }}>
+                                📋 Why was this flagged?
+                              </summary>
+                              <ul style={{ marginTop: '10px', textAlign: 'left' }}>
+                                {mlResult['Top Reasons']?.map((reason, index) => (
+                                  <li key={index}>
+                                    {reason.explanation} — <em>impact: {reason.impact}</em>
+                                  </li>
+                                ))}
+                              </ul>
+                            </details>
+                          </div>
+                        </>
                       )}
                     </div>
                   )}
