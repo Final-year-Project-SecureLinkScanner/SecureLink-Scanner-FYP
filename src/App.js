@@ -76,9 +76,7 @@ function App() {
     <Router>
       <nav className="navbar">
         <h1>SecureLink Scanner</h1>
-        <button className="hamburger" onClick={() => setNavOpen(!navOpen)}>
-          ☰
-        </button>
+        <button className="hamburger" onClick={() => setNavOpen(!navOpen)}>☰</button>
         <ul className={`nav-links ${navOpen ? 'show' : ''}`}>
           <li><Link to="/">Home</Link></li>
           <li><Link to="/URLDatabase">View URLDatabase</Link></li>
@@ -102,11 +100,7 @@ function App() {
                   placeholder="Enter URL"
                   required
                 />
-                <button
-                  id="checkButton"
-                  type="submit"
-                  disabled={loadingSafeBrowsing}
-                >
+                <button id="checkButton" type="submit" disabled={loadingSafeBrowsing}>
                   {loadingSafeBrowsing ? 'Checking...' : 'Check Google Safe Browsing'}
                 </button>
               </form>
@@ -125,7 +119,7 @@ function App() {
                 onClick={handleManualTest}
                 disabled={loadingManualTest}
               >
-                {loadingManualTest ? 'Logging...' : 'Run script checker'}
+                {loadingManualTest ? 'Checking...' : 'Run script checker'}
               </button>
 
               {loadingManualTest && <div className="loading-spinner"></div>}
@@ -139,6 +133,7 @@ function App() {
                       <h2>ML Model Result</h2>
                       <p>Status: {mlResult.Prediction}</p>
                       <p>Warning Level: {mlResult['Warning Level']}</p>
+
                       <div className="progress-container">
                         <div className="progress-item">
                           <p>Legitimate Confidence</p>
@@ -158,34 +153,48 @@ function App() {
                         </div>
                       </div>
 
-                      {(mlResult.Prediction === 'PHISHING' || mlResult.Prediction === 'SUSPICIOUS') && (
-                        <>
-                          <div style={{ marginTop: '20px', textAlign: 'center' }}>
-                            <a
-                              className="kasm-button"
-                              href={buildKasmURL(url)}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                            >
-                              🛡️ Open URL in Kasm Secure Browser
-                            </a>
-                          </div>
-
+                      {(mlResult.Prediction === 'PHISHING' || mlResult.Prediction === 'SUSPICIOUS') &&
+                        mlResult['SHAP Explanations']?.length > 0 && (
                           <div className="top-reasons" style={{ marginTop: '30px' }}>
-                            <details>
+                            <details open>
                               <summary style={{ fontWeight: 'bold', cursor: 'pointer' }}>
-                                📋 Why was this flagged?
+                                📋 Features used by AI model
                               </summary>
-                              <ul style={{ marginTop: '10px', textAlign: 'left' }}>
-                                {mlResult['SHAP Explanations']?.map((reason, index) => (
+                              <ul
+                                style={{
+                                  marginTop: '10px',
+                                  textAlign: 'left',
+                                  maxHeight: '300px',
+                                  overflowY: 'auto',
+                                  paddingRight: '10px',
+                                  border: '1px solid #ddd',
+                                  borderRadius: '8px'
+                                }}
+                              >
+                                  <li>SHAP integration enabled — output hidden for clarity.</li>
+
+                                {/* {mlResult['SHAP Explanations'].map((reason, index) => (
                                   <li key={index}>
-                                    {reason.explanation} — <em>impact: {reason.impact}</em>
+                                    <strong>{reason.explanation}</strong> —
+                                    <em> impact: {reason.impact >= 0 ? '+' : ''}{reason.impact}</em>
                                   </li>
-                                ))}
+                                ))} */}
                               </ul>
                             </details>
                           </div>
-                        </>
+                      )}
+
+                      {(mlResult.Prediction === 'PHISHING' || mlResult.Prediction === 'SUSPICIOUS') && (
+                        <div style={{ marginTop: '20px', textAlign: 'center' }}>
+                          <a
+                            className="kasm-button"
+                            href={buildKasmURL(url)}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            🛡️ Open URL in Kasm Secure Browser
+                          </a>
+                        </div>
                       )}
                     </div>
                   )}
