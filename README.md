@@ -1,70 +1,99 @@
-# Getting Started with Create React App
+# SecureLink Scanner
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+SecureLink Scanner is a web application designed to analyse URLs for potential threats using Google Safe Browsing and a custom Machine Learning (ML) model. It provides users with detailed results about the safety and legitimacy of URLs, including phishing and suspicious activity detection.
 
-## Available Scripts
+## Features
 
-In the project directory, you can run:
+- **Google Safe Browsing Integration**: Checks URLs against Google's Safe Browsing API to detect malware and phishing threats.
+- **Machine Learning Model**: Uses a custom ML model to predict the legitimacy of URLs and provides confidence scores for phishing and legitimate classifications.
+- **Kasm Secure Browser Integration**: Allows users to open suspicious URLs in a secure, isolated browser environment.
+- **Responsive Design**: The application is fully responsive and optimised for both desktop and mobile devices.
+- **URL Database**: Stores and displays a history of scanned URLs and their results.
+- **Contact Page**: Provides a way for users to reach out for support or inquiries(inactive).
 
-### `npm start`
+---
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+## Project Structure
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+### Frontend
 
-### `npm test`
+The frontend is built using **React** and styled with **CSS** for a clean and responsive user interface.
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+#### Key Components:
+- **`App.js`**: The main entry point of the application. It handles routing, user input, and API calls for URL scanning.
+  - **Google Safe Browsing Check**: Sends a URL to the backend to check its safety using Google's Safe Browsing API.
+  - **Manual Test (ML Model)**: Sends a URL to the backend for analysis by the custom ML model.
+  - **Kasm Secure Browser**: Provides a button to open suspicious URLs in a secure browser environment.
+- **`URLDatabase.js`**: Displays a list of previously scanned URLs and their results.
+- **`Contact.js`**: A simple contact form for user inquiries.
 
-### `npm run build`
+#### Styling:
+- **`App.css`**: Contains all the styles for the application, including responsive design for mobile devices.
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+---
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+### Backend
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+The backend is built using **Node.js** and **Express**, with **MongoDB** as the database for storing scan results.
 
-### `npm run eject`
+#### Key Files:
+- **`Server.js`**: The main server file that handles API requests.
+  - **Google Safe Browsing Check**: Sends URLs to Google's Safe Browsing API and stores the results in MongoDB.
+  - **ML Model Integration**: Forwards URLs to a Python-based ML model API for analysis and stores the results in MongoDB.
+  - **URL History Endpoint**: Provides an endpoint to fetch all stored scan results.
+- **`ScanResults.js`**: Defines the MongoDB schema for storing scan results, including Google Safe Browsing and ML model results.
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+---
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+### Tests
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+The project includes automated tests using **Selenium WebDriver** to ensure the functionality of the application.
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+#### Key Test File:
+- **`ScanFlow.test.js`**: Contains tests for scanning URLs (e.g., Google and GitHub) and verifying the results displayed on the frontend.
 
-## Learn More
+---
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+## How It Works
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+1. **User Input**: The user enters a URL into the input field on the homepage.
+2. **Google Safe Browsing Check**:
+   - The URL is sent to the backend, which forwards it to Google's Safe Browsing API.
+   - The API checks the URL for threats and returns the results.
+   - The results are displayed on the frontend and stored in the database.
+3. **ML Model Check**:
+   - The URL is sent to the backend, which forwards it to a Python-based ML model API.
+   - The ML model predicts whether the URL is legitimate or phishing and provides confidence scores.
+   - The results are displayed on the frontend and stored in the database.
+4. **Kasm Secure Browser**:
+   - If the URL is flagged as suspicious or phishing, the user can open it in a secure browser environment using Kasm.
+5. **URL Database**:
+   - Users can view a history of all scanned URLs and their results on the URL Database page.
 
-### Code Splitting
+---
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+## Installation
 
-### Analyzing the Bundle Size
+### Prerequisites
+- **Node.js** and **npm** installed on your machine.
+- **MongoDB** instance for storing scan results.
+- **ChromeDriver** for running Selenium tests.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+### Steps
+1. Clone the repository:
+   git clone https://github.com/your-repo/securelink-scanner.git
+   cd securelink-scanner
+2. Install dependencies:
+    - npm install
+3. Start the backend server:
+    - node Server.js
+4. Start the frontend:
+    - npm start
 
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+## Technologies Used
+- Frontend: React, React Router, Circular Progress Bar
+- Backend: Node.js, Express, MongoDB, Axios
+- Testing: Selenium WebDriver
+- Styling: CSS
+- APIs: Google Safe Browsing API, Custom ML Model API
+- Secure Browser: Kasm Workspaces
