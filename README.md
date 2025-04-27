@@ -97,3 +97,6 @@ The project includes automated tests using **Selenium WebDriver** to ensure the 
 - Styling: CSS
 - APIs: Google Safe Browsing API, Custom ML Model API
 - Secure Browser: Kasm Workspaces
+
+### DEMO
+- YT: https://youtu.be/e_8h8wUYiP4
