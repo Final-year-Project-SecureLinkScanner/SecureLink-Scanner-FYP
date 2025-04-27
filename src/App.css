@@ -235,9 +235,19 @@ body {
 }
 
 .top-reasons ul {
-  list-style: disc;
-  margin-left: 20px;
+  scrollbar-width: thin;
+  scrollbar-color: #ccc transparent;
 }
+
+.top-reasons ul::-webkit-scrollbar {
+  width: 6px;
+}
+
+.top-reasons ul::-webkit-scrollbar-thumb {
+  background-color: #ccc;
+  border-radius: 3px;
+}
+
 
 .top-reasons li {
   margin-bottom: 8px;
